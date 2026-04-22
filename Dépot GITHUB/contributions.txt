@@ -1,0 +1,33 @@
+Répartition des contributions :
+
+Yacine :
+
+* CSVReader.java + DataReader.java :
+  Implémentation de la lecture du fichier CSV.
+  Validation de la structure (id, nom, matières).
+  Mapping des colonnes vers les objets Matiere.
+  Gestion des erreurs (format, notes invalides).
+
+* Etudiant.java :
+  Implémentation des attributs (id, nom, notes).
+  Calcul de la moyenne pondérée.
+  Attribution des mentions.
+
+* GestionNotes.java :
+  Implémentation du tri des étudiants par moyenne.
+
+---
+
+Abderraouf :
+
+* CSVWriter.java + DataWriter.java :
+  Implémentation de l’écriture du fichier résultat (rang, moyenne, mention).
+
+* Matiere.java :
+  Définition des matières et de leurs coefficients.
+
+* Note.java :
+  Association entre une matière et une note.
+
+* Main.java :
+  Orchestration globale du programme (lecture → traitement → écriture).
