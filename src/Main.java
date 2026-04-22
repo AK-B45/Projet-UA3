@@ -18,6 +18,5 @@ public class Main {
 
         writer.ecrire("resultats.csv", etudiants);
 
-        System.out.println("Traitement terminé !");
     }
 }
