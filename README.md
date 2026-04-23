@@ -6,46 +6,98 @@
 
 ---
 
-## Description
-Ce projet Java permet de gérer des étudiants, leurs notes et leurs matières à partir d’un fichier CSV.
+## 1. Description du projet
 
-Le programme réalise les opérations suivantes :
-- Lecture d’un fichier CSV contenant les notes des étudiants
-- Validation de la structure du fichier
-- Transformation des données en objets métier
-- Calcul d’une moyenne pondérée selon les coefficients des matières
-- Attribution automatique d’une mention
-- Tri des étudiants par moyenne décroissante
-- Génération d’un fichier de résultats
+Ce projet Java a pour objectif de gérer des étudiants à partir d’un fichier CSV contenant leurs notes par matière.
 
----
-
-## Fonctionnalités
-- Validation stricte du format CSV (structure et matières)
-- Gestion des matières avec coefficients
-- Calcul de moyenne pondérée
-- Attribution de mentions
-- Tri des étudiants
-- Export des résultats dans un fichier CSV
-- Gestion des erreurs (notes invalides, format incorrect)
+Le système permet de :
+- Lire un fichier CSV
+- Valider sa structure et son contenu
+- Transformer les données en objets métier
+- Calculer une moyenne pondérée selon les coefficients des matières
+- Attribuer une mention à chaque étudiant
+- Trier les étudiants par moyenne décroissante
+- Générer un fichier de résultats
 
 ---
 
-## Structure du projet
+## 2. Architecture du projet
 
-- Model/ : classes métier (Etudiant, Note, Matiere)  
-- io/ : lecture et écriture CSV  
-- mapper/ : transformation des données CSV en objets métier  
-- repository/ : gestion des matières et coefficients  
-- service/ : logique métier (tri, traitements)  
-- validation/ : validation de la structure du CSV  
-- Main.java : point d’entrée du programme  
+Le projet suit une architecture modulaire inspirée des principes SOLID.
+
+### model/
+Contient les objets métier :
+- **Etudiant** : représente un étudiant (id, nom, notes, moyenne, mention)
+- **Note** : association entre une matière et une valeur
+- **Matiere** : définition d’une matière avec son coefficient
 
 ---
 
-## Format du fichier CSV
+### io/
+Gestion des entrées/sorties CSV :
 
-Le fichier `notes.csv` doit respecter la structure suivante :
+- **DataReader (interface)**  
+  Définit le contrat de lecture des données :
+  - `List<Etudiant> lire(String fichier)`
+
+- **DataWriter (interface)**  
+  Définit le contrat d’écriture des données :
+  - `void ecrire(String fichier, List<Etudiant> etudiants)`
+
+- **CSVReader**  
+  - Lecture du fichier CSV
+  - Extraction des lignes
+  - Transmission au validator et mapper
+  - Création des objets Etudiant
+
+- **CSVWriter**  
+  - Écriture du fichier de sortie
+  - Formatage des résultats (rang, moyenne, mention)
+
+---
+
+### mapper/
+- **EtudiantMapper**
+  - Transformation d’une ligne CSV en objet Etudiant
+  - Création des objets Note
+  - Association avec les matières via le repository
+
+---
+
+### repository/
+- **MatiereRepository**
+  - Centralise la liste des matières
+  - Fournit les coefficients
+  - Sert de référence métier unique
+
+---
+
+### validation/
+- **CSVValidator**
+  - Vérifie la structure du CSV
+  - Contrôle les en-têtes (id, nom, matières)
+  - Vérifie la cohérence avec le repository
+  - Garantit la validité des données avant traitement
+
+---
+
+### service/
+- **GestionNotes**
+  - Trie les étudiants par moyenne décroissante
+  - Contient la logique métier de classement
+
+---
+
+### Main.java
+- Point d’entrée du programme
+- Orchestration complète :
+  - lecture → validation → mapping → traitement → écriture
+
+---
+
+## 3. Format du fichier CSV
+
+Exemple attendu :
 
 id,nom,Math,Physique,Informatique  
 1,Alice,15,14,16  
@@ -53,12 +105,36 @@ id,nom,Math,Physique,Informatique
 
 ### Règles :
 - Les deux premières colonnes doivent être `id` et `nom`
-- Les autres colonnes doivent correspondre aux matières définies dans le système
+- Les autres colonnes doivent correspondre aux matières définies dans `MatiereRepository`
 - Les notes doivent être comprises entre 0 et 20
+- Les erreurs de format sont gérées par le système
 
 ---
 
-## Exécution du projet
+## 4. Fonctionnement global
+
+1. Lecture du fichier CSV (`CSVReader`)
+2. Validation de la structure (`CSVValidator`)
+3. Mapping des données (`EtudiantMapper`)
+4. Création des objets métier (`Etudiant`, `Note`, `Matiere`)
+5. Calcul de la moyenne pondérée (`Etudiant`)
+6. Attribution de la mention (`Etudiant`)
+7. Tri des étudiants (`GestionNotes`)
+8. Écriture du fichier résultat (`CSVWriter`)
+
+---
+
+## 5. Principes SOLID appliqués
+
+- **SRP** : chaque classe a une responsabilité unique
+- **OCP** : extensible via interfaces (nouveaux formats possibles)
+- **DIP** : dépendance aux interfaces (`DataReader`, `DataWriter`)
+- **ISP** : interfaces simples et spécialisées
+- **LSP** : interchangeabilité des implémentations (`CSVReader`, etc.)
+
+---
+
+## 6. Exécution du projet
 
 ### 1. Cloner le projet
 git clone https://github.com/AK-B45/Projet-UA3.git  
@@ -76,30 +152,24 @@ java -cp bin Main
 
 ---
 
-## Résultat attendu
-Le programme génère un fichier `resultats.csv` contenant :
-- rang  
-- id  
-- nom  
-- moyenne  
-- mention  
+## 7. Résultat attendu
+
+Le programme génère un fichier :
+- `resultats.csv`
+
+Contenant :
+- rang
+- id
+- nom
+- moyenne
+- mention
 
 ---
 
-## Architecture et conception
+## 8. Remarques techniques
 
-Le projet suit une architecture inspirée des principes SOLID :
-
-- SRP : chaque classe a une seule responsabilité  
-- OCP : extensible (ajout de nouveaux formats possible)  
-- DIP : dépendance aux interfaces (DataReader, DataWriter)  
-- ISP : interfaces simples et spécialisées  
-- LSP : implémentations interchangeables  
-
----
-
-## Remarques
-- Les lignes mal formées du CSV sont ignorées  
-- Les notes invalides (hors 0–20) sont ignorées  
-- Le système est extensible  
-- Le projet peut être exécuté via IDE ou terminal  
+- Les notes non numériques sont ignorées
+- Les notes hors intervalle [0–20] sont rejetées
+- Les lignes mal formées sont ignorées
+- Le système est conçu pour être extensible (nouveaux formats via interfaces)
+- Architecture totalement modulaire et découplée
