@@ -4,7 +4,9 @@
 
 ### Objectif
 
-Ces classes permettent de lire un fichier CSV contenant les données des étudiants et de les transformer en objets exploitables par le programme.
+Ces classes permettent de lire un fichier CSV contenant les données des étudiants et de les transformer en objets métier exploitables, tout en respectant une architecture modulaire (SOLID).
+
+---
 
 ### DataReader.java
 
@@ -13,6 +15,9 @@ Ces classes permettent de lire un fichier CSV contenant les données des étudia
 
   * `List<Etudiant> lire(String fichier)`
 * Permet de rendre le système extensible (ex: lecture JSON, base de données).
+* Respecte le principe d’inversion des dépendances (DIP).
+
+---
 
 ### CSVReader.java
 
@@ -23,21 +28,24 @@ Ces classes permettent de lire un fichier CSV contenant les données des étudia
 * Utilisation de `BufferedReader` pour lire le fichier ligne par ligne.
 * Lecture de la première ligne (en-tête) pour identifier les colonnes.
 
-2. Validation de la structure
+2. Validation de la structure (via CSVValidator)
 
-* Vérification que les deux premières colonnes sont bien `id` et `nom`.
-* Vérification que les colonnes suivantes correspondent à des matières connues.
-* Si une matière est inconnue → arrêt du programme avec une erreur.
+* Délégation de la validation à une classe dédiée (`CSVValidator`).
+* Vérification :
 
-3. Mapping des colonnes vers les objets métier
+  * présence des colonnes `id` et `nom`
+  * cohérence des matières avec le référentiel métier
+* Permet de respecter le principe de responsabilité unique (SRP).
 
-* Utilisation d’une `Map<String, Matiere>` comme référence métier.
-* Chaque nom de colonne est associé à un objet `Matiere` avec son coefficient.
-* Permet de transformer les données CSV en objets `Note`.
+3. Mapping des données (via EtudiantMapper)
+
+* Transformation des lignes CSV en objets `Etudiant` via `EtudiantMapper`.
+* Séparation claire entre lecture et transformation.
+* Utilisation du `MatiereRepository` pour récupérer les objets `Matiere`.
 
 4. Lecture des données étudiants
 
-* Conversion de chaque ligne en objet `Etudiant`.
+* Chaque ligne est transformée en objet `Etudiant`.
 * Extraction de :
 
   * id (int)
@@ -46,14 +54,57 @@ Ces classes permettent de lire un fichier CSV contenant les données des étudia
 
 5. Gestion des erreurs
 
-* Valeurs non numériques → ignorées (NumberFormatException)
-* Notes hors intervalle [0,20] → ignorées
 * Lignes mal formées → ignorées
-* Permet d’éviter les crashs et de rendre le système robuste
+* Erreurs de lecture → capturées (IOException)
+* Les erreurs de parsing et validation sont gérées dans les classes dédiées
+* Permet une meilleure robustesse et un code plus maintenable
 
 ---
 
-## 2. Etudiant.java
+## 2. CSVValidator.java
+
+### Objectif
+
+Valider la structure du fichier CSV indépendamment de la lecture.
+
+### Fonctionnalités
+
+* Vérification des colonnes obligatoires (`id`, `nom`)
+* Vérification des matières via `MatiereRepository`
+* Détection des incohérences dans le fichier
+
+### Rôle
+
+* Externalise la validation
+* Respecte le principe SRP
+* Rend le système plus testable
+
+---
+
+## 3. EtudiantMapper.java
+
+### Objectif
+
+Transformer les données brutes du CSV en objets métier.
+
+### Fonctionnalités
+
+* Conversion des lignes CSV en objets `Etudiant`
+* Mapping des colonnes vers les objets `Matiere`
+* Création des objets `Note`
+* Filtrage :
+
+  * notes invalides
+  * valeurs hors intervalle [0,20]
+
+### Rôle
+
+* Sépare la transformation des données du reste du système
+* Facilite l’évolution (ex: autre format d’entrée)
+
+---
+
+## 4. Etudiant.java
 
 ### Objectif
 
@@ -93,7 +144,7 @@ Représenter un étudiant avec ses informations et encapsuler la logique métier
 
 ---
 
-## 3. GestionNotes.java
+## 5. GestionNotes.java
 
 ### Objectif
 
@@ -119,13 +170,16 @@ Implémenter la logique métier liée à la manipulation des étudiants.
 
 Cette partie du projet couvre :
 
-* la transformation des données (CSV → objets métier)
-* la validation et la robustesse des entrées
+* la lecture des données
+* la validation du fichier CSV
+* la transformation des données en objets métier
 * l’implémentation de la logique métier (moyenne, mention, tri)
 
 L’ensemble respecte les principes suivants :
 
-* séparation des responsabilités
-* modularité
-* extensibilité via interfaces
+* séparation des responsabilités (SRP)
+* inversion des dépendances (DIP)
+* modularité et extensibilité
 * robustesse face aux erreurs de données
+
+Cette architecture permet une évolution facile du système (ajout de nouveaux formats, nouvelles règles métier, etc.).

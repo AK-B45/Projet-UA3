@@ -1,15 +1,14 @@
 package io;
 
 import Model.Etudiant;
-
 import java.io.*;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class CSVWriter implements DataWriter {
 
     @Override
     public void ecrire(String fichier, List<Etudiant> etudiants) {
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(fichier))) {
 
             bw.write("rang,id,nom,moyenne,mention");

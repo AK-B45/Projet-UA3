@@ -2,11 +2,24 @@ Répartition des contributions :
 
 Yacine :
 
+* Modélisation du système :
+  Conception du modèle de données (Etudiant, Note, Matiere).
+  Définition des relations entre les entités (un étudiant possède des notes, chaque note est liée à une matière avec coefficient).
+  Structuration de l’architecture globale du projet.
+
 * CSVReader.java + DataReader.java :
   Implémentation de la lecture du fichier CSV.
-  Validation de la structure (id, nom, matières).
-  Mapping des colonnes vers les objets Matiere.
-  Gestion des erreurs (format, notes invalides).
+  Utilisation du validateur et du mapper pour respecter le principe de responsabilité unique.
+  Intégration des dépendances (validator, mapper) via injection.
+
+* CSVValidator.java :
+  Validation de la structure du fichier (id, nom, matières).
+  Vérification des matières autorisées.
+
+* EtudiantMapper.java :
+  Transformation des lignes CSV en objets Etudiant.
+  Gestion du mapping colonnes → Matiere.
+  Filtrage des notes invalides.
 
 * Etudiant.java :
   Implémentation des attributs (id, nom, notes).
@@ -26,8 +39,12 @@ Abderraouf :
 * Matiere.java :
   Définition des matières et de leurs coefficients.
 
+* MatiereRepository.java :
+  Gestion centralisée des matières.
+  Fourniture des matières au reste du système.
+
 * Note.java :
   Association entre une matière et une note.
 
 * Main.java :
-  Orchestration globale du programme (lecture → traitement → écriture).
+  Orchestration globale du programme (injection des dépendances, lecture → traitement → écriture).

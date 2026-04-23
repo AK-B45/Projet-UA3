@@ -1,58 +1,129 @@
-\# Gestion des étudiants - Java
+# Gestion des étudiants - Java
 
+## Membres
 
+* Yacine Lezoul
+* Abderraouf Kouadri Boudjelthia
 
-\## Membres
+---
 
-\- Yacine Lezoul
+## Description
 
-\- Abderraouf Kouadri Boudjelthia
+Ce projet Java permet de gérer des étudiants, leurs notes et leurs matières à partir d’un fichier CSV.
 
+Le programme réalise les opérations suivantes :
 
+* Lecture d’un fichier CSV contenant les notes des étudiants
+* Validation de la structure du fichier
+* Transformation des données en objets métier
+* Calcul d’une moyenne pondérée selon les coefficients des matières
+* Attribution automatique d’une mention
+* Tri des étudiants par moyenne décroissante
+* Génération d’un fichier de résultats
 
-\## Description
+---
 
-Ce projet permet de :
+## Fonctionnalités
 
-\- Lire un fichier CSV contenant les notes des étudiants
+* Validation stricte du format CSV (structure et matières)
+* Gestion des matières avec coefficients
+* Calcul de moyenne pondérée
+* Attribution de mentions (Très bien, Bien, etc.)
+* Tri des étudiants
+* Export des résultats dans un fichier CSV
+* Gestion des erreurs (notes invalides, format incorrect)
 
-\- Valider la structure du fichier
+---
 
-\- Calculer une moyenne pondérée par matière
+## Structure du projet
 
-\- Attribuer une mention
+* `model/` : classes métier (Etudiant, Note, Matiere)
+* `repository/` : gestion des matières (MatiereRepository)
+* `validation/` : validation des données (CSVValidator)
+* `mapper/` : transformation CSV → objets (EtudiantMapper)
+* `io/` : lecture et écriture (CSVReader, CSVWriter, interfaces)
+* `service/` : logique métier (GestionNotes)
+* `Main.java` : point d’entrée du programme
 
-\- Trier les étudiants par moyenne
+---
 
-\- Générer un fichier de résultats
+## Format attendu du fichier CSV
 
+Le fichier `notes.csv` doit respecter la structure suivante :
 
+id,nom,Math,Physique,Informatique
+1,Alice,15,14,16
+2,Bob,10,12,11
 
-\## Fonctionnalités
+* Les deux premières colonnes doivent être `id` et `nom`
+* Les autres colonnes doivent correspondre aux matières définies dans le code
+* Les notes doivent être comprises entre 0 et 20
 
-\- Validation du format CSV
+---
 
-\- Gestion des matières avec coefficients
+## Exécution du projet
 
-\- Calcul de moyenne pondérée
+### Option 1 – Depuis GitHub (recommandé)
 
-\- Attribution de mention
+1. Cloner le dépôt :
 
-\- Tri des étudiants
+   ```
+   git clone <URL_DU_REPO>
+   ```
+2. Se placer dans le dossier du projet :
 
-\- Export des résultats
+   ```
+   cd gestion-notes-java
+   ```
+3. Compiler le projet :
 
+   ```
+   javac -d bin src/**/*.java
+   ```
+4. Exécuter le programme :
 
+   ```
+   java -cp bin Main
+   ```
 
-\## Exécution
+---
 
-1\. Placer le fichier `notes.csv` à la racine
+### Option 2 – Depuis un IDE (IntelliJ, Eclipse, VS Code)
 
-2\. Compiler :
+* Importer le projet
+* Lancer directement la classe `Main.java`
 
-&#x20;  javac -d bin src/\*\*/\*.java
+---
 
-3\. Exécuter :
+## Fichier de sortie
 
-&#x20;  java -cp bin Main
+Le programme génère un fichier :
 
+`resultats.csv`
+
+Contenant :
+
+* rang
+* id
+* nom
+* moyenne
+* mention
+
+---
+
+## Conception
+
+Le projet suit une architecture modulaire inspirée des principes SOLID :
+
+* séparation des responsabilités
+* utilisation d’interfaces (DataReader, DataWriter)
+* injection des dépendances
+* découplage entre lecture, traitement et écriture
+
+---
+
+## Remarques
+
+* Le fichier `notes.csv` doit être placé à la racine du projet
+* Les erreurs de format sont gérées pour éviter les crashs
+* Le système est extensible (possibilité d’ajouter JSON, base de données, etc.)
