@@ -18,7 +18,7 @@ public class CSVWriter implements DataWriter {
             int rang = 1;
             for (Etudiant e : etudiants) {
                 bw.write(rang + "," + e.getId() + "," + e.getNom() + "," +
-                        String.format(Locale.US, e.getMoyenne()) + "," +
+                        String.format(Locale.US, "%.2f",e.getMoyenne()) + "," +
                         e.getMention());
                 bw.newLine();
                 rang++;
