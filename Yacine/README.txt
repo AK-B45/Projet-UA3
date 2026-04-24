@@ -1,12 +1,8 @@
-# Documentation technique – Partie Yacine
-
----
-
 ## 1. Modélisation du système
 
 ### Objectif
 
-Réaliser la conception complète du système avant l’implémentation, en définissant les classes, packages et relations du domaine métier.
+Réaliser la conception complète du système avant l’implémentation, en définissant les entités métier, l’organisation en packages et les relations entre composants.
 
 ---
 
@@ -14,215 +10,149 @@ Réaliser la conception complète du système avant l’implémentation, en déf
 
 - Conception de l’architecture globale du projet
 - Définition de l’organisation en packages :
-  - model
-  - io
-  - mapper
-  - repository
-  - service
-  - validation
-- Définition des responsabilités de chaque package
-- Conception des classes principales :
-  - Etudiant
-  - Note
-  - Matiere
-- Définition des relations entre les classes :
-  - Etudiant → liste de Note
-  - Note → Matiere
-- Structuration du flux global :
-  lecture → validation → mapping → traitement → tri → écriture
+  - `model`
+  - `io`
+  - `mapper`
+  - `repository`
+  - `service`
+  - `validation`
+
+- Définition des responsabilités de chaque couche
+
+- Conception des entités métier :
+  - `Etudiant`
+  - `Note`
+  - `Matiere`
+
+- Introduction d’un référentiel central :
+  - `MatiereRepository` (gestion des matières et coefficients)
+
+---
+
+### Définition des responsabilités des classes
+
+#### Model
+
+- **Etudiant**
+  - Représente un étudiant (id, nom, notes)
+  - Contient les résultats calculés :
+    - moyenne
+    - mention
+  - Ne contient aucune logique de calcul métier
+
+- **Note**
+  - Représente une note associée à une matière
+  - Relie une valeur à un objet `Matiere`
+
+- **Matiere**
+  - Représente une matière avec son coefficient
+
+---
+
+#### Repository
+
+- **MatiereRepository**
+  - Source unique des matières disponibles
+  - Fournit :
+    - accès aux matières
+    - vérification d’existence
+  - Utilisé par :
+    - `CSVValidator`
+    - `EtudiantMapper`
+
+---
+
+#### Validation
+
+- **CSVValidator**
+  - Valide la structure du fichier CSV
+  - Vérifie :
+    - présence de `id` et `nom`
+    - validité des matières via `MatiereRepository`
+
+---
+
+#### Mapper
+
+- **EtudiantMapper**
+  - Transforme une ligne CSV en objet `Etudiant`
+  - Crée les objets `Note`
+  - Associe chaque note à une `Matiere`
+
+---
+
+#### IO
+
+- **DataReader (interface)**
+  - Contrat de lecture des données
+
+- **CSVReader**
+  - Lit le fichier CSV
+  - Délègue :
+    - validation → `CSVValidator`
+    - transformation → `EtudiantMapper`
+  - Retourne une liste d’`Etudiant`
+
+---
+
+#### Service
+
+- **MoyenneService**
+  - Calcule la moyenne pondérée d’un étudiant
+
+- **MentionService**
+  - Attribue une mention selon la moyenne
+
+- **GestionNotes**
+  - Trie les étudiants par moyenne décroissante
+
+---
+
+### Flux global du système
+
+1. Lecture du fichier CSV (`CSVReader`)
+2. Validation du format (`CSVValidator`)
+3. Transformation des données (`EtudiantMapper`)
+4. Construction des objets métier (`Etudiant`, `Note`, `Matiere`)
+5. Calcul de la moyenne (`MoyenneService`)
+6. Attribution de la mention (`MentionService`)
+7. Tri des étudiants (`GestionNotes`)
 
 ---
 
 ### Lien avec les principes SOLID
 
-La modélisation constitue la base permettant l’application des principes SOLID :
+- **SRP (Single Responsibility Principle)**  
+  Chaque classe a un rôle unique (lecture, validation, mapping, calcul, tri, modèle)
 
-- **SRP (Single Responsibility Principle)** : séparation des responsabilités dès la conception (model, service, io, etc.)
-- **OCP (Open/Closed Principle)** : architecture pensée pour permettre l’ajout de nouveaux formats sans modifier le cœur du système
-- **DIP (Dependency Inversion Principle)** : introduction d’interfaces pour découpler lecture et écriture
-- **ISP (Interface Segregation Principle)** : séparation des interfaces DataReader / DataWriter
-- **LSP (Liskov Substitution Principle)** : possibilité de remplacer une implémentation (ex: CSVReader) par une autre sans modifier le reste du système
+- **OCP (Open/Closed Principle)**  
+  Le système est extensible (ajout possible de nouveaux formats via `DataReader`)
+
+- **DIP (Dependency Inversion Principle)**  
+  Utilisation d’interfaces (`DataReader`) et d’un repository central (`MatiereRepository`)
+
+- **ISP (Interface Segregation Principle)**  
+  Interfaces séparées selon les besoins (lecture uniquement)
+
+- **LSP (Liskov Substitution Principle)**  
+  Remplacement possible de `CSVReader` par une autre implémentation sans modifier le reste du système
 
 ---
 
 ### Rôle de la modélisation
 
 - Structurer le système avant implémentation
-- Réduire les dépendances entre composants
-- Préparer une architecture conforme aux principes SOLID
-- Faciliter l’évolution et la maintenance du projet
+- Définir clairement les responsabilités
+- Éviter les dépendances directes inutiles
+- Garantir une architecture évolutive
+- Préparer une base solide pour l’application des principes SOLID
 
 ---
 
-## 2. CSVReader.java + DataReader.java
+### Rôle de MatiereRepository
 
-### Objectif
-
-Lire les données CSV et produire des objets métier exploitables.
-
----
-
-### DataReader.java
-
-- Définition d’un contrat de lecture
-- Méthode :
-  List<Etudiant> lire(String fichier)
-- Permet abstraction du format de données
-- Supporte extensibilité (CSV, JSON, base de données)
-
----
-
-### CSVReader.java
-
-- Lecture du fichier ligne par ligne
-- Extraction de l’en-tête CSV
-- Délégation des responsabilités :
-  - validation → CSVValidator
-  - transformation → EtudiantMapper
-- Retour d’une liste d’Etudiant
-
----
-
-### Gestion des erreurs
-
-- Gestion des erreurs de lecture (IOException)
-- Données invalides gérées en validation/mapping
-- Aucune logique métier dans la classe
-
----
-
-## 3. CSVValidator.java
-
-### Objectif
-
-Valider la structure du fichier CSV avant traitement.
-
----
-
-### Travaux réalisés
-
-- Vérification des colonnes obligatoires (id, nom)
-- Vérification des matières présentes
-- Contrôle de cohérence avec MatiereRepository
-
----
-
-### Rôle
-
-- Garantir la validité des données en entrée
-- Isoler la logique de validation
-- Améliorer la robustesse du système
-
----
-
-## 4. EtudiantMapper.java
-
-### Objectif
-
-Transformer les données CSV en objets métier.
-
----
-
-### Travaux réalisés
-
-- Conversion des lignes CSV en objets Etudiant
-- Création des objets Note
-- Association avec MatiereRepository
-- Filtrage des données invalides :
-  - valeurs non numériques
-  - notes hors intervalle [0,20]
-  - matières inconnues
-
----
-
-### Rôle
-
-- Séparer transformation et lecture
-- Isoler la logique de mapping
-- Faciliter l’évolution vers d’autres formats
-
----
-
-## 5. Etudiant.java
-
-### Objectif
-
-Représenter un étudiant comme entité métier.
-
----
-
-### Travaux réalisés
-
-- Définition des attributs :
-  - id
-  - nom
-  - notes
-  - moyenne
-  - mention
-- Stockage des résultats calculés
-
----
-
-### Rôle
-
-- Entité métier simple (POJO)
-- Aucune logique de calcul interne
-- Les calculs sont effectués par :
-  - MoyenneService
-  - MentionService
-
----
-
-## 6. GestionNotes.java
-
-### Objectif
-
-Gérer le classement des étudiants.
-
----
-
-### Travaux réalisés
-
-- Tri des étudiants par moyenne décroissante
-- Implémentation du classement final
-
----
-
-## 7. Services métier
-
-### MoyenneService
-- Calcul de la moyenne pondérée
-- Application des coefficients des matières
-
----
-
-### MentionService
-- Attribution des mentions selon la moyenne :
-  - Très bien
-  - Bien
-  - Assez bien
-  - Passable
-  - Insuffisant
-
----
-
-## 8. Rôle global de la contribution
-
-Cette partie couvre :
-
-- la conception complète du système (modélisation)
-- la lecture des données CSV
-- la validation des données
-- la transformation en objets métier
-- la définition des règles métier (calculs et tri)
-
----
-
-## 9. Conclusion
-
-L’ensemble de cette contribution permet :
-
-- une architecture modulaire et claire
-- une séparation stricte des responsabilités
-- une application des principes SOLID
-- une base extensible pour évolution future du système
+- Centralise les matières et leurs coefficients
+- Sert de référence unique pour le système
+- Utilisé par la validation et le mapping
+- Évite la duplication de logique métier
+- Garantit la cohérence des données
