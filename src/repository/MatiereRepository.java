@@ -5,27 +5,44 @@ import java.util.*;
 
 /**
  * Repository central des matières du système.
- *
- * Rôle :
- * - Stocker les matières disponibles
- * - Fournir un accès unique et centralisé aux matières
- * - Servir de référence métier pour validation et mapping
- *
- * Importance :
- * Cette classe évite la duplication des matières dans le code
- * et garantit une cohérence globale du système.
+ * <p>
+ * ============================
+ * PATRON DE CONCEPTION UTILISÉ
+ * ============================
+ * Repository Pattern :
+ * - Centralise l'accès aux données métier
+ * - Sert de point unique pour récupérer les matières
+ * - Évite la duplication de logique et de données
+ * <p>
+ * ============================
+ * RÔLE GLOBAL
+ * ============================
+ * - Stocker les matières disponibles dans le système
+ * - Fournir un accès cohérent et contrôlé
+ * - Garantir l'unicité des données métier (source de vérité)
+ * <p>
+ * ============================
+ * IMPACT ARCHITECTURAL
+ * ============================
+ * - Utilisé par CSVValidator (validation des matières)
+ * - Utilisé par EtudiantMapper (création des notes)
+ * - Permet de découpler le reste du système des données fixes
  */
 public class MatiereRepository {
 
-    // Map interne :
-    // clé   = nom de la matière (format normalisé)
-    // valeur = objet Matiere (nom + coefficient)
+    /**
+     * Structure interne de stockage :
+     * - clé : nom normalisé de la matière
+     * - valeur : objet Matiere (nom + coefficient)
+     */
     private final Map<String, Matiere> matieres = new HashMap<>();
 
     /**
-     * Initialisation des matières disponibles dans le système.
-     *
-     * Ici, les matières sont définies en dur (approche simple projet étudiant).
+     * Initialisation des matières du système.
+     * <p>
+     * Remarque :
+     * Dans un projet plus avancé, ces données pourraient venir
+     * d'une base de données ou d'un fichier externe.
      */
     public MatiereRepository() {
 
@@ -36,30 +53,32 @@ public class MatiereRepository {
 
     /**
      * Récupère une matière à partir de son nom.
+     * <p>
+     * Normalisation appliquée :
+     * - conversion en minuscules
+     * - suppression des espaces inutiles
      *
-     * @param nom nom de la matière (insensible à la casse et espaces)
-     * @return objet Matiere correspondant ou null si inexistante
+     * @param nom nom de la matière
+     * @return objet Matiere correspondant ou null si absent
      */
     public Matiere get(String nom) {
 
-        // Normalisation de la clé pour éviter les erreurs de format
         return matieres.get(nom.toLowerCase().trim());
     }
 
     /**
-     * Vérifie si une matière existe dans le repository.
+     * Vérifie l'existence d'une matière dans le repository.
      *
      * @param nom nom de la matière
      * @return true si la matière existe, sinon false
      */
     public boolean exists(String nom) {
 
-        // Vérification basée sur la clé normalisée
         return matieres.containsKey(nom.toLowerCase().trim());
     }
 
     /**
-     * Retourne toutes les clés des matières disponibles.
+     * Retourne toutes les matières disponibles (clés uniquement).
      *
      * @return ensemble des noms de matières
      */

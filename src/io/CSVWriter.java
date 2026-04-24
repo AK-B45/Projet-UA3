@@ -15,16 +15,21 @@ public class CSVWriter implements DataWriter {
             bw.newLine();
 
             int rang = 1;
+
             for (Etudiant e : etudiants) {
-                bw.write(rang + "," + e.getId() + "," + e.getNom() + "," +
-                        String.format(Locale.US, "%.2f",e.getMoyenne()) + "," +
-                        e.getMention());
+                bw.write(
+                        rang + "," +
+                                e.getId() + "," +
+                                e.getNom() + "," +
+                                String.format(Locale.US, "%.2f", e.getMoyenne()) + "," +
+                                e.getMention()
+                );
                 bw.newLine();
                 rang++;
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Erreur écriture fichier CSV : " + e.getMessage());
         }
     }
 }

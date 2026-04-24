@@ -3,40 +3,28 @@ package Model;
 import java.util.List;
 
 /**
- * Classe métier représentant un étudiant.
- *
- * Rôle :
- * - Stocker les informations de base d’un étudiant
- * - Stocker ses notes
- * - Stocker les résultats calculés (moyenne, mention)
- *
- * Important :
- * Cette classe ne contient aucune logique de calcul
- * (respect du principe SRP - Single Responsibility Principle)
+ * Représente un étudiant avec ses notes et ses résultats.
+ * Classe métier simple (aucun calcul interne).
  */
 public class Etudiant {
 
-    // Identifiant unique de l'étudiant
-    private int id;
+    // Identifiant de l’étudiant
+    private final int id;
 
-    // Nom de l'étudiant
+    // Nom de l’étudiant
     private String nom;
 
-    // Liste des notes associées à différentes matières
+    // Liste des notes (matière + valeur)
     private List<Note> notes;
 
-    // Résultat calculé : moyenne pondérée
+    // Moyenne calculée par un service externe
     private double moyenne;
 
-    // Résultat calculé : mention associée à la moyenne
+    // Mention calculée par un service externe
     private String mention;
 
     /**
-     * Constructeur principal
-     *
-     * @param id identifiant de l'étudiant
-     * @param nom nom de l'étudiant
-     * @param notes liste des notes associées
+     * Création de l’étudiant avec ses notes
      */
     public Etudiant(int id, String nom, List<Note> notes) {
         this.id = id;
@@ -44,7 +32,7 @@ public class Etudiant {
         this.notes = notes;
     }
 
-    // ===================== GETTERS =====================
+    // GETTERS
 
     public int getId() {
         return id;
@@ -66,18 +54,12 @@ public class Etudiant {
         return mention;
     }
 
-    // ===================== SETTERS =====================
+    // SETTERS (remplis après calcul)
 
-    /**
-     * Mise à jour de la moyenne après calcul par un service externe
-     */
     public void setMoyenne(double moyenne) {
         this.moyenne = moyenne;
     }
 
-    /**
-     * Mise à jour de la mention après calcul par un service externe
-     */
     public void setMention(String mention) {
         this.mention = mention;
     }

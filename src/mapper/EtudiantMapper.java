@@ -6,83 +6,52 @@ import repository.MatiereRepository;
 import java.util.*;
 
 /**
- * Classe responsable de la transformation des données brutes CSV
- * en objets métier Etudiant.
- *
- * Rôle principal :
- * - Convertir une ligne CSV en objet Etudiant
- * - Associer les colonnes aux matières du repository
- * - Créer les objets Note correspondants
+ * Transforme une ligne CSV en objet Etudiant
  */
 public class EtudiantMapper {
 
-    // Référentiel central des matières (source de vérité des noms + coefficients)
+    // Accès central aux matières
     private final MatiereRepository repo;
 
-    /**
-     * Injection du repository des matières
-     * Permet de respecter le principe de dépendance (DIP)
-     */
+    // Injection du repository
     public EtudiantMapper(MatiereRepository repo) {
         this.repo = repo;
     }
 
     /**
-     * Transforme une ligne CSV en objet Etudiant
-     *
-     * @param colonnes tableau des en-têtes CSV (id, nom, Math, Physique, ...)
-     * @param parties  valeurs de la ligne correspondante
-     *
-     * @return objet Etudiant construit à partir des données CSV
+     * Convertit une ligne CSV en Etudiant
      */
     public Etudiant map(String[] colonnes, String[] parties) {
 
-        // Extraction des données de base de l'étudiant
-        int id = Integer.parseInt(parties[0]);   // conversion id texte → entier
-        String nom = parties[1];                  // nom de l'étudiant
+        // Données de base
+        int id = Integer.parseInt(parties[0]);
+        String nom = parties[1];
 
-        // Liste des notes associées à l'étudiant
+        // Liste des notes
         List<Note> notes = new ArrayList<>();
 
-        /**
-         * Parcours des colonnes à partir de l'indice 2 :
-         * - 0 = id
-         * - 1 = nom
-         * - 2+ = matières
-         */
+        // Parcours des matières (à partir de la 3e colonne)
         for (int i = 2; i < parties.length; i++) {
             try {
 
-                // Conversion de la note (String → double)
+                // Conversion de la note
                 double valeur = Double.parseDouble(parties[i]);
 
-                // Validation de la plage de note (0 à 20)
-                // Toute valeur invalide est ignorée
+                // Ignore les valeurs hors [0,20]
                 if (valeur < 0 || valeur > 20) continue;
 
-                /**
-                 * Récupération de la matière correspondante
-                 * via le repository (source de vérité)
-                 *
-                 * Exemple :
-                 * colonne "Math" → Matiere("Math", coef=3)
-                 */
+                // Récupère la matière correspondante
                 Matiere matiere = repo.get(colonnes[i]);
 
-                // Création d'une note liée à une matière
+                // Ajoute la note
                 notes.add(new Note(matiere, valeur));
 
             } catch (NumberFormatException ignored) {
-                // Cas où la valeur n'est pas un nombre valide
-                // Exemple : cellule vide, texte, erreur CSV
-                // → la valeur est simplement ignorée
+                // Ignore les valeurs non numériques
             }
         }
 
-        /**
-         * Création finale de l'objet Etudiant
-         * avec ses notes associées
-         */
+        // Création de l'étudiant
         return new Etudiant(id, nom, notes);
     }
 }
