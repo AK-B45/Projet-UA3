@@ -6,37 +6,41 @@ import repository.MatiereRepository;
 import service.GestionNotes;
 import service.MentionService;
 import service.MoyenneService;
+import ui.ConsoleUI;
 import validation.CSVValidator;
 
-/**
- * Point d’entrée du programme.
- * Orchestre tout le traitement des étudiants.
- */
-void main() {
+import java.util.List;
 
-    String fichierEntree = "notes.csv";
+public class Main {
 
-    // Infrastructure
-    MatiereRepository repo = new MatiereRepository();
-    CSVValidator validator = new CSVValidator(repo);
-    EtudiantMapper mapper = new EtudiantMapper(repo);
-    DataReader reader = new CSVReader(validator, mapper);
+    public static void main(String[] args) {
 
-    // Lecture
-    List<Etudiant> etudiants = reader.lire(fichierEntree);
+        String fichierEntree = "notes.csv";
 
-    // Services métier
-    MoyenneService moyenneService = new MoyenneService();
-    MentionService mentionService = new MentionService();
+        MatiereRepository repo = new MatiereRepository();
+        CSVValidator validator = new CSVValidator(repo);
+        EtudiantMapper mapper = new EtudiantMapper(repo);
+        DataReader reader = new CSVReader(validator, mapper);
 
-    for (Etudiant e : etudiants) {
-        e.setMoyenne(moyenneService.calculer(e));
-        e.setMention(mentionService.attribuer(e.getMoyenne()));
+        List<Etudiant> etudiants = reader.lire(fichierEntree);
+
+        if (etudiants.isEmpty()) {
+            System.out.println("Aucun étudiant trouvé.");
+            return;
+        }
+
+        MoyenneService moyenneService = new MoyenneService();
+        MentionService mentionService = new MentionService();
+
+        for (Etudiant e : etudiants) {
+            e.setMoyenne(moyenneService.calculer(e));
+            e.setMention(mentionService.attribuer(e.getMoyenne()));
+        }
+
+        GestionNotes gestion = new GestionNotes();
+        gestion.trierEtudiants(etudiants);
+
+        ConsoleUI ui = new ConsoleUI(etudiants, moyenneService, mentionService);
+        ui.demarrer();
     }
-
-    // Tri
-    GestionNotes gestion = new GestionNotes();
-    gestion.trierEtudiants(etudiants);
-
-    IO.println("Traitement terminé !");
 }

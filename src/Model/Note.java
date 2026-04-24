@@ -1,6 +1,7 @@
 package Model;
 
 public class Note {
+
     private Matiere matiere;
     private double valeur;
 
@@ -15,5 +16,9 @@ public class Note {
 
     public double getValeur() {
         return valeur;
+    }
+
+    public void setValeur(double valeur) {
+        this.valeur = valeur;
     }
 }

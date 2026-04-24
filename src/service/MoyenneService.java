@@ -26,4 +26,8 @@ public class MoyenneService {
 
         return coeffTotal == 0 ? 0 : somme / coeffTotal;
     }
+
+    private String formatDouble(double value) {
+        return String.format(java.util.Locale.US, "%.2f", value);
+    }
 }
