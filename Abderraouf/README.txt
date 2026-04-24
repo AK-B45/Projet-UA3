@@ -1,48 +1,65 @@
 # Documentation technique – Partie ABDERRAOUF
 
+---
+
 ## 1. CSVWriter.java + DataWriter.java
 
 ### Objectif
 
-Ces classes permettent d’écrire les résultats du traitement dans un fichier CSV de sortie.
+Ces classes permettent d’écrire les résultats du traitement dans un fichier CSV.
 
-### DataWriter.java
+---
 
-* Interface définissant le contrat d’écriture des données.
-* Méthode principale :
+## DataWriter.java (interface)
 
-  * `void ecrire(String fichier, List<Etudiant> etudiants)`
-* Permet de rendre le système extensible (ex: écriture JSON, base de données).
+### Rôle
+Définir un contrat d’écriture des données.
 
-### CSVWriter.java
+### Méthode
 
-#### Fonctionnalités principales
+void ecrire(String fichier, List<Etudiant> etudiants)
 
-1. Création du fichier de sortie
+### Intérêt
+- Permet une abstraction de l’écriture
+- Rend possible l’ajout de nouveaux formats (CSV, JSON, etc.)
 
-* Utilisation de `BufferedWriter` pour écrire dans un fichier.
-* Création ou écrasement du fichier existant.
+---
 
-2. Écriture de l’en-tête
+## CSVWriter.java
 
-* Ajout des colonnes :
+### Fonction principale
 
-  * rang
-  * id
-  * nom
-  * moyenne
-  * mention
+Écriture des résultats des étudiants dans un fichier CSV.
 
-3. Écriture des données
+---
 
-* Parcours de la liste des étudiants triés.
-* Attribution d’un rang (ordre après tri).
-* Formatage de la moyenne à deux décimales (`Locale.US` pour garantir le format avec point).
+### Étapes :
 
-4. Gestion des erreurs
+- Création du fichier de sortie avec BufferedWriter
+- Écriture de l’en-tête :
 
-* Gestion des exceptions `IOException`.
-* Utilisation de `try-with-resources` pour garantir la fermeture du fichier.
+rang,id,nom,moyenne,mention
+
+- Parcours de la liste des étudiants
+- Écriture des données pour chaque étudiant :
+  - id
+  - nom
+  - moyenne
+  - mention
+
+---
+
+### Formatage
+
+- Moyenne affichée avec 2 décimales
+- Données structurées pour lecture facile
+
+---
+
+### Gestion des erreurs
+
+- Utilisation de try-with-resources
+- Gestion des erreurs d’écriture (IOException)
 
 ---
 
@@ -52,15 +69,19 @@ Ces classes permettent d’écrire les résultats du traitement dans un fichier 
 
 Représenter une matière avec son coefficient.
 
+---
+
 ### Attributs
 
-* `nom` : nom de la matière
-* `coefficient` : poids de la matière dans le calcul de la moyenne
+- nom : nom de la matière
+- coefficient : poids dans le calcul de la moyenne
+
+---
 
 ### Rôle
 
-* Fournir une base pour le calcul des moyennes pondérées.
-* Être utilisée dans la classe `Note`.
+- Permet le calcul pondéré des notes
+- Utilisée dans les objets Note
 
 ---
 
@@ -70,15 +91,19 @@ Représenter une matière avec son coefficient.
 
 Associer une note à une matière.
 
-### Attributs
+---
 
-* `matiere` : objet Matiere
-* `valeur` : note obtenue (double)
+### Structure
+
+- Matiere : matière associée
+- valeur : note obtenue
+
+---
 
 ### Rôle
 
-* Permet de relier explicitement une note à sa matière.
-* Facilite le calcul de la moyenne pondérée dans `Etudiant`.
+- Représentation d’une note dans une matière
+- Utilisée pour le calcul de la moyenne
 
 ---
 
@@ -86,55 +111,33 @@ Associer une note à une matière.
 
 ### Objectif
 
-Point d’entrée du programme et orchestration des différentes étapes.
-
-### Fonctionnement
-
-1. Initialisation des composants
-
-* Création d’un `DataReader` (CSVReader)
-* Création d’un `DataWriter` (CSVWriter)
-* Création du service `GestionNotes`
-
-2. Exécution du traitement
-
-* Lecture des étudiants depuis le fichier CSV
-* Tri des étudiants par moyenne
-* Écriture des résultats dans un fichier de sortie
-
-3. Affichage
-
-* Confirmation de la fin du traitement
-* Possibilité d’afficher le chemin du fichier généré
+Point d’entrée du programme.
 
 ---
 
-## Rôle global dans l’architecture
+### Rôle
 
-Cette partie du projet couvre :
-
-* la sortie des données (écriture CSV)
-* la définition des structures de base (Matiere, Note)
-* l’orchestration complète du programme
-
-Elle complète la partie précédente en assurant :
-
-* la transformation finale des données
-* la cohérence du modèle métier
-* le bon déroulement du programme
+- Initialisation des composants
+- Appel des services
+- Orchestration globale :
+  lecture → traitement → tri → écriture
 
 ---
 
-## Conclusion
+## 5. Contribution globale
 
-Cette contribution permet :
+Cette partie du projet permet :
 
-* de produire un fichier résultat exploitable
-* de structurer les données métier
-* d’assurer l’exécution complète du programme
+- L’écriture des résultats dans un fichier CSV
+- La définition des structures de base (Matiere, Note)
+- L’exécution finale du programme
 
-L’ensemble respecte :
+---
 
-* la séparation des responsabilités
-* la modularité
-* la clarté du flux de traitement (lecture → traitement → écriture)
+## 6. Conclusion
+
+Cette contribution assure :
+
+- La génération du fichier final
+- La structuration des données de sortie
+- La bonne exécution du flux global du programme

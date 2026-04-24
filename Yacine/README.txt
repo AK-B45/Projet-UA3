@@ -1,185 +1,228 @@
 # Documentation technique – Partie Yacine
 
-## 1. CSVReader.java + DataReader.java
+---
+
+## 1. Modélisation du système
 
 ### Objectif
 
-Ces classes permettent de lire un fichier CSV contenant les données des étudiants et de les transformer en objets métier exploitables, tout en respectant une architecture modulaire (SOLID).
+Réaliser la conception complète du système avant l’implémentation, en définissant les classes, packages et relations du domaine métier.
+
+---
+
+### Travaux réalisés
+
+- Conception de l’architecture globale du projet
+- Définition de l’organisation en packages :
+  - model
+  - io
+  - mapper
+  - repository
+  - service
+  - validation
+- Définition des responsabilités de chaque package
+- Conception des classes principales :
+  - Etudiant
+  - Note
+  - Matiere
+- Définition des relations entre les classes :
+  - Etudiant → liste de Note
+  - Note → Matiere
+- Structuration du flux global :
+  lecture → validation → mapping → traitement → tri → écriture
+
+---
+
+### Lien avec les principes SOLID
+
+La modélisation constitue la base permettant l’application des principes SOLID :
+
+- **SRP (Single Responsibility Principle)** : séparation des responsabilités dès la conception (model, service, io, etc.)
+- **OCP (Open/Closed Principle)** : architecture pensée pour permettre l’ajout de nouveaux formats sans modifier le cœur du système
+- **DIP (Dependency Inversion Principle)** : introduction d’interfaces pour découpler lecture et écriture
+- **ISP (Interface Segregation Principle)** : séparation des interfaces DataReader / DataWriter
+- **LSP (Liskov Substitution Principle)** : possibilité de remplacer une implémentation (ex: CSVReader) par une autre sans modifier le reste du système
+
+---
+
+### Rôle de la modélisation
+
+- Structurer le système avant implémentation
+- Réduire les dépendances entre composants
+- Préparer une architecture conforme aux principes SOLID
+- Faciliter l’évolution et la maintenance du projet
+
+---
+
+## 2. CSVReader.java + DataReader.java
+
+### Objectif
+
+Lire les données CSV et produire des objets métier exploitables.
 
 ---
 
 ### DataReader.java
 
-* Interface définissant le contrat de lecture des données.
-* Méthode principale :
-
-  * `List<Etudiant> lire(String fichier)`
-* Permet de rendre le système extensible (ex: lecture JSON, base de données).
-* Respecte le principe d’inversion des dépendances (DIP).
+- Définition d’un contrat de lecture
+- Méthode :
+  List<Etudiant> lire(String fichier)
+- Permet abstraction du format de données
+- Supporte extensibilité (CSV, JSON, base de données)
 
 ---
 
 ### CSVReader.java
 
-#### Fonctionnalités principales
-
-1. Lecture du fichier CSV
-
-* Utilisation de `BufferedReader` pour lire le fichier ligne par ligne.
-* Lecture de la première ligne (en-tête) pour identifier les colonnes.
-
-2. Validation de la structure (via CSVValidator)
-
-* Délégation de la validation à une classe dédiée (`CSVValidator`).
-* Vérification :
-
-  * présence des colonnes `id` et `nom`
-  * cohérence des matières avec le référentiel métier
-* Permet de respecter le principe de responsabilité unique (SRP).
-
-3. Mapping des données (via EtudiantMapper)
-
-* Transformation des lignes CSV en objets `Etudiant` via `EtudiantMapper`.
-* Séparation claire entre lecture et transformation.
-* Utilisation du `MatiereRepository` pour récupérer les objets `Matiere`.
-
-4. Lecture des données étudiants
-
-* Chaque ligne est transformée en objet `Etudiant`.
-* Extraction de :
-
-  * id (int)
-  * nom (String)
-  * notes (List<Note>)
-
-5. Gestion des erreurs
-
-* Lignes mal formées → ignorées
-* Erreurs de lecture → capturées (IOException)
-* Les erreurs de parsing et validation sont gérées dans les classes dédiées
-* Permet une meilleure robustesse et un code plus maintenable
+- Lecture du fichier ligne par ligne
+- Extraction de l’en-tête CSV
+- Délégation des responsabilités :
+  - validation → CSVValidator
+  - transformation → EtudiantMapper
+- Retour d’une liste d’Etudiant
 
 ---
 
-## 2. CSVValidator.java
+### Gestion des erreurs
+
+- Gestion des erreurs de lecture (IOException)
+- Données invalides gérées en validation/mapping
+- Aucune logique métier dans la classe
+
+---
+
+## 3. CSVValidator.java
 
 ### Objectif
 
-Valider la structure du fichier CSV indépendamment de la lecture.
+Valider la structure du fichier CSV avant traitement.
 
-### Fonctionnalités
+---
 
-* Vérification des colonnes obligatoires (`id`, `nom`)
-* Vérification des matières via `MatiereRepository`
-* Détection des incohérences dans le fichier
+### Travaux réalisés
+
+- Vérification des colonnes obligatoires (id, nom)
+- Vérification des matières présentes
+- Contrôle de cohérence avec MatiereRepository
+
+---
 
 ### Rôle
 
-* Externalise la validation
-* Respecte le principe SRP
-* Rend le système plus testable
+- Garantir la validité des données en entrée
+- Isoler la logique de validation
+- Améliorer la robustesse du système
 
 ---
 
-## 3. EtudiantMapper.java
+## 4. EtudiantMapper.java
 
 ### Objectif
 
-Transformer les données brutes du CSV en objets métier.
+Transformer les données CSV en objets métier.
 
-### Fonctionnalités
+---
 
-* Conversion des lignes CSV en objets `Etudiant`
-* Mapping des colonnes vers les objets `Matiere`
-* Création des objets `Note`
-* Filtrage :
+### Travaux réalisés
 
-  * notes invalides
-  * valeurs hors intervalle [0,20]
+- Conversion des lignes CSV en objets Etudiant
+- Création des objets Note
+- Association avec MatiereRepository
+- Filtrage des données invalides :
+  - valeurs non numériques
+  - notes hors intervalle [0,20]
+  - matières inconnues
+
+---
 
 ### Rôle
 
-* Sépare la transformation des données du reste du système
-* Facilite l’évolution (ex: autre format d’entrée)
+- Séparer transformation et lecture
+- Isoler la logique de mapping
+- Faciliter l’évolution vers d’autres formats
 
 ---
 
-## 4. Etudiant.java
+## 5. Etudiant.java
 
 ### Objectif
 
-Représenter un étudiant avec ses informations et encapsuler la logique métier associée.
-
-### Attributs
-
-* `id` : identifiant unique
-* `nom` : nom de l’étudiant
-* `notes` : liste des objets Note
-* `moyenne` : moyenne pondérée calculée
-* `mention` : mention associée à la moyenne
-
-### Fonctionnalités principales
-
-1. Calcul de la moyenne pondérée
-
-* Chaque note est multipliée par le coefficient de sa matière
-* Formule :
-  somme(note × coefficient) / somme(coefficients)
-* Gestion du cas division par zéro
-
-2. Attribution de la mention
-
-* Basée sur la moyenne :
-
-  * ≥ 16 : Très bien
-  * ≥ 14 : Bien
-  * ≥ 12 : Assez bien
-  * ≥ 10 : Passable
-  * < 10 : Insuffisant
-
-3. Encapsulation
-
-* Les calculs sont effectués à la création de l’objet
-* Les données sont accessibles via des getters
+Représenter un étudiant comme entité métier.
 
 ---
 
-## 5. GestionNotes.java
+### Travaux réalisés
+
+- Définition des attributs :
+  - id
+  - nom
+  - notes
+  - moyenne
+  - mention
+- Stockage des résultats calculés
+
+---
+
+### Rôle
+
+- Entité métier simple (POJO)
+- Aucune logique de calcul interne
+- Les calculs sont effectués par :
+  - MoyenneService
+  - MentionService
+
+---
+
+## 6. GestionNotes.java
 
 ### Objectif
 
-Implémenter la logique métier liée à la manipulation des étudiants.
-
-### Fonctionnalité principale
-
-1. Tri des étudiants
-
-* Tri de la liste des étudiants par moyenne décroissante
-* Utilisation de `Comparator` :
-
-  * `Comparator.comparingDouble(Etudiant::getMoyenne).reversed()`
-
-### Rôle dans l’architecture
-
-* Sépare la logique métier du reste du système
-* Facilite la maintenance et l’évolution du code
+Gérer le classement des étudiants.
 
 ---
 
-## Conclusion
+### Travaux réalisés
 
-Cette partie du projet couvre :
+- Tri des étudiants par moyenne décroissante
+- Implémentation du classement final
 
-* la lecture des données
-* la validation du fichier CSV
-* la transformation des données en objets métier
-* l’implémentation de la logique métier (moyenne, mention, tri)
+---
 
-L’ensemble respecte les principes suivants :
+## 7. Services métier
 
-* séparation des responsabilités (SRP)
-* inversion des dépendances (DIP)
-* modularité et extensibilité
-* robustesse face aux erreurs de données
+### MoyenneService
+- Calcul de la moyenne pondérée
+- Application des coefficients des matières
 
-Cette architecture permet une évolution facile du système (ajout de nouveaux formats, nouvelles règles métier, etc.).
+---
+
+### MentionService
+- Attribution des mentions selon la moyenne :
+  - Très bien
+  - Bien
+  - Assez bien
+  - Passable
+  - Insuffisant
+
+---
+
+## 8. Rôle global de la contribution
+
+Cette partie couvre :
+
+- la conception complète du système (modélisation)
+- la lecture des données CSV
+- la validation des données
+- la transformation en objets métier
+- la définition des règles métier (calculs et tri)
+
+---
+
+## 9. Conclusion
+
+L’ensemble de cette contribution permet :
+
+- une architecture modulaire et claire
+- une séparation stricte des responsabilités
+- une application des principes SOLID
+- une base extensible pour évolution future du système

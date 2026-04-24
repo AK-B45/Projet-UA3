@@ -1,50 +1,127 @@
-Répartition des contributions :
-
-Yacine :
-
-* Modélisation du système :
-  Conception du modèle de données (Etudiant, Note, Matiere).
-  Définition des relations entre les entités (un étudiant possède des notes, chaque note est liée à une matière avec coefficient).
-  Structuration de l’architecture globale du projet.
-
-* CSVReader.java + DataReader.java :
-  Implémentation de la lecture du fichier CSV.
-  Utilisation du validateur et du mapper pour respecter le principe de responsabilité unique.
-  Intégration des dépendances (validator, mapper) via injection.
-
-* CSVValidator.java :
-  Validation de la structure du fichier (id, nom, matières).
-  Vérification des matières autorisées.
-
-* EtudiantMapper.java :
-  Transformation des lignes CSV en objets Etudiant.
-  Gestion du mapping colonnes → Matiere.
-  Filtrage des notes invalides.
-
-* Etudiant.java :
-  Implémentation des attributs (id, nom, notes).
-  Calcul de la moyenne pondérée.
-  Attribution des mentions.
-
-* GestionNotes.java :
-  Implémentation du tri des étudiants par moyenne.
+# Répartition des contributions
 
 ---
 
-Abderraouf :
+## Yacine :
 
-* CSVWriter.java + DataWriter.java :
-  Implémentation de l’écriture du fichier résultat (rang, moyenne, mention).
+### 1. Modélisation du système
+- Conception du modèle de données :
+  - Etudiant
+  - Note
+  - Matiere
+- Définition des relations entre les entités :
+  - Un étudiant possède une liste de notes
+  - Chaque note est associée à une matière avec coefficient
+- Structuration globale de l’architecture du projet (organisation en packages)
 
-* Matiere.java :
-  Définition des matières et de leurs coefficients.
+---
 
-* MatiereRepository.java :
-  Gestion centralisée des matières.
-  Fourniture des matières au reste du système.
+### 2. CSVReader.java + DataReader.java
+- Implémentation de la lecture du fichier CSV
+- Transformation des données en objets métier
+- Lecture ligne par ligne du fichier
+- Transmission des données vers validation et mapping
+- Séparation lecture / traitement (respect SRP)
 
-* Note.java :
-  Association entre une matière et une note.
+---
 
-* Main.java :
-  Orchestration globale du programme (injection des dépendances, lecture → traitement → écriture).
+### 3. CSVValidator.java
+- Vérification de la structure du CSV
+- Contrôle des en-têtes (id, nom, matières)
+- Validation des matières avec le repository
+
+---
+
+### 4. EtudiantMapper.java
+- Transformation des lignes CSV en objets Etudiant
+- Association des colonnes avec les matières
+- Création des objets Note
+- Gestion des valeurs invalides
+
+---
+
+### 5. Etudiant.java
+- Définition des attributs :
+  - id
+  - nom
+  - notes
+  - moyenne
+  - mention
+
+- Rôle :
+  - Entité métier représentant un étudiant
+  - Stockage des données et résultats calculés
+
+- Remarque :
+  - Aucune logique métier de calcul dans la classe
+
+---
+
+### 6. GestionNotes.java
+- Tri des étudiants par moyenne décroissante
+- Classement final des étudiants
+
+---
+
+### 7. MoyenneService.java
+- Calcul de la moyenne pondérée des étudiants
+- Application des coefficients des matières
+- Centralisation de la logique de calcul
+
+---
+
+### 8. MentionService.java
+- Attribution des mentions selon la moyenne
+- Application des règles métier :
+  - Très bien, Bien, Assez bien, Passable, Insuffisant
+
+---
+
+## Abderraouf :
+
+### 1. CSVWriter.java + DataWriter.java
+- Implémentation de l’écriture du fichier CSV de sortie
+- Génération du fichier final contenant :
+  - rang
+  - id
+  - nom
+  - moyenne
+  - mention
+- Formatage des données pour export
+
+---
+
+### 2. Matiere.java
+- Définition des matières
+- Association de chaque matière à un coefficient
+
+---
+
+### 3. MatiereRepository.java
+- Centralisation des matières et coefficients
+- Fourniture des données de référence au système
+- Source unique de vérité pour les matières
+
+---
+
+### 4. Note.java
+- Association entre une matière et une note
+- Support du calcul de la moyenne pondérée
+
+---
+
+### 5. Main.java
+- Point d’entrée du programme
+- Orchestration globale :
+  lecture → validation → mapping → calcul → tri → écriture
+- Coordination des modules du système
+
+---
+
+## Conclusion
+
+Cette répartition garantit :
+- Une séparation claire des responsabilités
+- Une architecture modulaire respectant les principes SOLID
+- Une contribution équilibrée entre les membres
+- Une meilleure lisibilité et maintenabilité du projet

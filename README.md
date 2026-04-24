@@ -8,7 +8,7 @@
 
 ## 1. Description du projet
 
-Ce projet Java a pour objectif de gérer des étudiants à partir d’un fichier CSV contenant leurs notes par matière.
+Ce projet Java permet de gérer des étudiants à partir d’un fichier CSV contenant leurs notes par matière.
 
 Le système permet de :
 - Lire un fichier CSV
@@ -37,61 +37,63 @@ Contient les objets métier :
 Gestion des entrées/sorties CSV :
 
 - **DataReader (interface)**  
-  Définit le contrat de lecture des données :
+  Contrat de lecture des données :
   - `List<Etudiant> lire(String fichier)`
 
 - **DataWriter (interface)**  
-  Définit le contrat d’écriture des données :
+  Contrat d’écriture des données :
   - `void ecrire(String fichier, List<Etudiant> etudiants)`
 
 - **CSVReader**  
   - Lecture du fichier CSV
-  - Extraction des lignes
-  - Transmission au validator et mapper
-  - Création des objets Etudiant
+  - Validation structure (via validator)
+  - Mapping vers objets métier
 
 - **CSVWriter**  
-  - Écriture du fichier de sortie
-  - Formatage des résultats (rang, moyenne, mention)
+  - Écriture du fichier résultat CSV
 
 ---
 
 ### mapper/
 - **EtudiantMapper**
-  - Transformation d’une ligne CSV en objet Etudiant
+  - Transformation ligne CSV → objet Etudiant
   - Création des objets Note
-  - Association avec les matières via le repository
+  - Association avec MatiereRepository
 
 ---
 
 ### repository/
 - **MatiereRepository**
-  - Centralise la liste des matières
-  - Fournit les coefficients
-  - Sert de référence métier unique
+  - Centralise les matières et leurs coefficients
+  - Sert de référence unique métier
 
 ---
 
 ### validation/
 - **CSVValidator**
-  - Vérifie la structure du CSV
+  - Vérifie le format du CSV
   - Contrôle les en-têtes (id, nom, matières)
-  - Vérifie la cohérence avec le repository
-  - Garantit la validité des données avant traitement
+  - Vérifie la cohérence avec les matières disponibles
 
 ---
 
 ### service/
+- **MoyenneService**
+  - Calcul de la moyenne pondérée
+
+- **MentionService**
+  - Attribution des mentions selon la moyenne
+
 - **GestionNotes**
-  - Trie les étudiants par moyenne décroissante
-  - Contient la logique métier de classement
+  - Tri des étudiants par moyenne décroissante
 
 ---
 
-### Main.java
-- Point d’entrée du programme
-- Orchestration complète :
-  - lecture → validation → mapping → traitement → écriture
+### main/
+- **Main**
+  - Point d’entrée du programme
+  - Orchestration globale :
+    lecture → validation → mapping → calcul → tri → écriture
 
 ---
 
@@ -105,20 +107,20 @@ id,nom,Math,Physique,Informatique
 
 ### Règles :
 - Les deux premières colonnes doivent être `id` et `nom`
-- Les autres colonnes doivent correspondre aux matières définies dans `MatiereRepository`
+- Les autres colonnes doivent correspondre aux matières du repository
 - Les notes doivent être comprises entre 0 et 20
-- Les erreurs de format sont gérées par le système
+- Toute incohérence est gérée par validation
 
 ---
 
 ## 4. Fonctionnement global
 
-1. Lecture du fichier CSV (`CSVReader`)
+1. Lecture du CSV (`CSVReader`)
 2. Validation de la structure (`CSVValidator`)
 3. Mapping des données (`EtudiantMapper`)
 4. Création des objets métier (`Etudiant`, `Note`, `Matiere`)
-5. Calcul de la moyenne pondérée (`Etudiant`)
-6. Attribution de la mention (`Etudiant`)
+5. Calcul de la moyenne (`MoyenneService`)
+6. Attribution de la mention (`MentionService`)
 7. Tri des étudiants (`GestionNotes`)
 8. Écriture du fichier résultat (`CSVWriter`)
 
@@ -127,7 +129,7 @@ id,nom,Math,Physique,Informatique
 ## 5. Principes SOLID appliqués
 
 - **SRP** : chaque classe a une responsabilité unique
-- **OCP** : extensible via interfaces (nouveaux formats possibles)
+- **OCP** : extensible via nouvelles implémentations (Reader/Writer)
 - **DIP** : dépendance aux interfaces (`DataReader`, `DataWriter`)
 - **ISP** : interfaces simples et spécialisées
 - **LSP** : interchangeabilité des implémentations (`CSVReader`, etc.)
@@ -154,11 +156,10 @@ java -cp bin Main
 
 ## 7. Résultat attendu
 
-Le programme génère un fichier :
+Le programme génère :
 - `resultats.csv`
 
 Contenant :
-- rang
 - id
 - nom
 - moyenne
@@ -168,8 +169,7 @@ Contenant :
 
 ## 8. Remarques techniques
 
-- Les notes non numériques sont ignorées
-- Les notes hors intervalle [0–20] sont rejetées
-- Les lignes mal formées sont ignorées
-- Le système est conçu pour être extensible (nouveaux formats via interfaces)
-- Architecture totalement modulaire et découplée
+- Les notes invalides (non numériques ou hors [0–20]) sont ignorées
+- Les lignes mal formées sont rejetées ou ignorées selon validation
+- Le système est extensible via nouvelles implémentations de Reader/Writer
+- Architecture modulaire respectant les principes SOLID
